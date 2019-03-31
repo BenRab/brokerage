@@ -3,10 +3,20 @@ package com.rabeler.brokerage.domain;
 import java.math.BigDecimal;
 
 public class CourseInformation {
-    BigDecimal currentValue;
+    private BigDecimal currentValue;
+    private Security security;
 
-    public CourseInformation(BigDecimal currentValue) {
+    public CourseInformation(Security security, BigDecimal currentValue) {
+        this.security = security;
         this.currentValue = currentValue;
+    }
+
+    public Security getSecurity() {
+        return security;
+    }
+
+    public void setSecurity(Security security) {
+        this.security = security;
     }
 
     public BigDecimal getCurrentValue() {
