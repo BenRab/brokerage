@@ -19,6 +19,9 @@ version '1.0-SNAPSHOT'
 
 repositories {
     mavenCentral()
+    maven {
+        url  "https://dl.bintray.com/patriques82/maven"
+    }
 }
 
 sourceCompatibility = 1.11
@@ -27,5 +30,7 @@ targetCompatibility = 1.11
 dependencies {
     compile("org.springframework.boot:spring-boot-starter-data-mongodb")
     compile("org.springframework.boot:spring-boot-starter-web")
+    compile 'pl.zankowski:iextrading4j-all:2.3.0'
     testCompile("org.springframework.boot:spring-boot-starter-test")
+    compile 'org.patriques:alphavantage4j:1.4'
 }
