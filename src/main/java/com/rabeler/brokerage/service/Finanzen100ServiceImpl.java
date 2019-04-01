@@ -7,11 +7,11 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @Service
@@ -27,22 +27,30 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
                     ".quote__price__pct"));
             courseInformation.setChangeTotal(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
                     ".quote__price__abs"));
+            courseInformation.setLow(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
+                    ".performance-overview__label .performance-overview__label__value"));
+            courseInformation.setHigh(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
+                    ".performance-overview__label--right .performance-overview__label__value"));
 
             System.out.println(courseInformation);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return null;
+        return courseInformation;
     }
 
-    private <K> K getValueForType(Document document, Function<Elements, K> parsingFunction, String selectorClass) {
-        Elements linksOnPage = getElements(document, selectorClass);
+    private <K> K getValueForType(Document document, Function<String, K> parsingFunction, String selectorClass) {
+        String linksOnPage = getElements(document, selectorClass);
         return parsingFunction.apply(linksOnPage);
     }
 
     private BigDecimal getValue(Document document, String selectorClass) {
-        Elements linksOnPage = getElements(document, selectorClass);
-        return parseToBigDecimal(linksOnPage);
+        return getValue(document, selectorClass, this::getElements);
+    }
+
+    private BigDecimal getValue(Document document, String selectorClass, BiFunction<Document, String, String> selectorFunction) {
+        String selectedElement = selectorFunction.apply(document, selectorClass);
+        return parseToBigDecimal(selectedElement);
     }
 
     private BigDecimal toNumber(String currentPrice) {
@@ -55,26 +63,28 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
         }
     }
 
-    private BigDecimal parseToBigDecimal(Elements linksOnPage) {
-        String currentPrice = linksOnPage.get(0).getAllElements().get(0).html();
+    private BigDecimal parseToBigDecimal(String currentPrice) {
         return toNumber(currentPrice);
     }
 
-    private BigDecimal parsePositiveNegativeToBigDecimal(Elements linksOnPage) {
-        String currentPrice = linksOnPage.get(0).getAllElements().get(0).html();
+    private BigDecimal parsePositiveNegativeToBigDecimal(String currentPrice) {
         String removedPrice = StringUtils.deleteAny(currentPrice, "+-");
         BigDecimal number = toNumber(removedPrice);
         return currentPrice.startsWith("-") ? number.negate() : number;
     }
 
-    private BigDecimal parsePositiveNegativeAndPercentToBigDecimal(Elements linksOnPage) {
-        String currentPrice = linksOnPage.get(0).getAllElements().get(0).html();
+    private BigDecimal parsePositiveNegativeAndPercentToBigDecimal(String currentPrice) {
         String removedPrice = StringUtils.deleteAny(currentPrice, "+-%");
         BigDecimal number = toNumber(removedPrice);
         return currentPrice.startsWith("-") ? number.negate() : number;
     }
 
-    private Elements getElements(Document document, String selectorClass) {
+    private String getElements(Document document, String selectorClass) {
+        Elements linksOnPage = getSelectedElements(document, selectorClass);
+        return linksOnPage.get(0).getAllElements().get(0).html();
+    }
+
+    private Elements getSelectedElements(Document document, String selectorClass) {
         return document.select(selectorClass);
     }
 }
