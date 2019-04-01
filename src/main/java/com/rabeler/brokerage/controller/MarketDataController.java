@@ -3,16 +3,16 @@ package com.rabeler.brokerage.controller;
 import com.rabeler.brokerage.domain.AlphaVantageFunction;
 import com.rabeler.brokerage.domain.CourseInformation;
 import com.rabeler.brokerage.domain.Security;
+import com.rabeler.brokerage.service.AlphaVintageService;
+import com.rabeler.brokerage.service.Finanzen100Service;
 import org.patriques.BatchStockQuotes;
 import org.patriques.input.ApiParameter;
 import org.patriques.input.Function;
 import org.patriques.input.Symbol;
 import org.patriques.input.Symbols;
 import org.patriques.output.quote.BatchStockQuotesResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
 import pl.zankowski.iextrading4j.api.marketdata.TOPS;
 import pl.zankowski.iextrading4j.api.refdata.ExchangeSymbol;
 import pl.zankowski.iextrading4j.api.stocks.*;
@@ -34,17 +34,26 @@ import java.util.function.Consumer;
 public class MarketDataController {
     private final IEXTradingClient iexTradingClient = IEXTradingClient.create();
 
+    @Autowired
+    private AlphaVintageService alphaVintageService;
+
+    @Autowired
+    private Finanzen100Service finanzen100Service;
+
     @GetMapping("/quoteAccurate/{securityNumber}")
+    @CrossOrigin(origins = "http://localhost:3000")
     public Object collectMarketInformation(@PathVariable String securityNumber) {
-        String apiKey = "GR4ATDG8BD62EV52";
-        int timeout = 3000;
-        AlphaVantageConnector apiConnector = new AlphaVantageConnector(apiKey, timeout);
-        BatchStockQuotes batchStockQuotes = new BatchStockQuotes(apiConnector);
-        BatchStockQuotesResponse batchStockQuotesResponse = batchStockQuotes.quote(securityNumber);
-        return apiConnector.getRequest(new Symbol(securityNumber), AlphaVantageFunction.GLOBAL_QUOTE);
+        return alphaVintageService.getQuote(securityNumber);
     }
 
     @GetMapping("/quote/{securityNumber}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public Object collectMarketDataFinanzen100(@PathVariable String securityNumber) {
+        return finanzen100Service.getQuote(securityNumber);
+    }
+
+    @GetMapping("/quoteInac/{securityNumber}")
+    @CrossOrigin(origins = "http://localhost:3000")
     public Object collectMarketInformationFinanzen100(@PathVariable String securityNumber) {
         String apiKey = "GR4ATDG8BD62EV52";
         int timeout = 3000;

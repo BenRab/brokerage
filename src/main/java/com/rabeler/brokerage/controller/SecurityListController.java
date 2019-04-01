@@ -18,8 +18,7 @@ import java.util.List;
 @RequestMapping("/rest")
 public class SecurityListController {
     @Autowired
-    private
-    BrokerageRepository brokerageRepository;
+    private BrokerageRepository brokerageRepository;
 
     @GetMapping("/list")
     @CrossOrigin(origins = "http://localhost:3000")
@@ -31,7 +30,7 @@ public class SecurityListController {
     @GetMapping("/add")
     @CrossOrigin(origins = "http://localhost:3000")
     public Object add() {
-        Security security = new Security("CBK100", "Commerzbank AG");
+        Security security = new Security("ACN", "Accenture plc");
         Position position = new Position(Date.from(Instant.now()), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
         SecurityPositions securityPositions = new SecurityPositions(new ObjectId(), security);
         PositionSummary positionSummary = new PositionSummary(BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
