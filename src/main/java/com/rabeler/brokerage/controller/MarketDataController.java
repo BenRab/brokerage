@@ -3,6 +3,8 @@ package com.rabeler.brokerage.controller;
 import com.rabeler.brokerage.domain.AlphaVantageFunction;
 import com.rabeler.brokerage.domain.CourseInformation;
 import com.rabeler.brokerage.domain.Security;
+import com.rabeler.brokerage.domain.SecurityPositions;
+import com.rabeler.brokerage.repository.BrokerageRepository;
 import com.rabeler.brokerage.service.AlphaVintageService;
 import com.rabeler.brokerage.service.Finanzen100Service;
 import org.patriques.BatchStockQuotes;
@@ -12,6 +14,7 @@ import org.patriques.input.Symbol;
 import org.patriques.input.Symbols;
 import org.patriques.output.quote.BatchStockQuotesResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.*;
 import pl.zankowski.iextrading4j.api.marketdata.TOPS;
 import pl.zankowski.iextrading4j.api.refdata.ExchangeSymbol;
@@ -25,9 +28,11 @@ import pl.zankowski.iextrading4j.client.socket.request.marketdata.TopsAsyncReque
 import org.patriques.AlphaVantageConnector;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/marketdata")
@@ -40,6 +45,9 @@ public class MarketDataController {
     @Autowired
     private Finanzen100Service finanzen100Service;
 
+    @Autowired
+    private BrokerageRepository brokerageRepository;
+
     @GetMapping("/quoteAccurate/{securityNumber}")
     @CrossOrigin(origins = "http://localhost:3000")
     public Object collectMarketInformation(@PathVariable String securityNumber) {
@@ -50,6 +58,18 @@ public class MarketDataController {
     @CrossOrigin(origins = "http://localhost:3000")
     public Object collectMarketDataFinanzen100(@PathVariable String securityNumber) {
         return finanzen100Service.getQuote(securityNumber);
+    }
+
+    @GetMapping("/quotes")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public Object collectQuotes() {
+        List<SecurityPositions> positions = brokerageRepository.findAll();
+        List<Pair<SecurityPositions, CourseInformation>> quotes = new ArrayList<>(positions.size());
+        for (SecurityPositions position : positions) {
+            CourseInformation courseInformation = finanzen100Service.getQuote(position.getSecurity().getSecurityNumber());
+            quotes.add(Pair.of(position, courseInformation));
+        }
+        return quotes;
     }
 
     @GetMapping("/quoteInac/{securityNumber}")
