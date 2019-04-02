@@ -2,37 +2,26 @@ package com.rabeler.brokerage.controller;
 
 import com.rabeler.brokerage.domain.AlphaVantageFunction;
 import com.rabeler.brokerage.domain.CourseInformation;
-import com.rabeler.brokerage.domain.Security;
+import com.rabeler.brokerage.domain.QuotesAndStockInformations;
 import com.rabeler.brokerage.domain.SecurityPositions;
 import com.rabeler.brokerage.repository.BrokerageRepository;
 import com.rabeler.brokerage.service.AlphaVintageService;
 import com.rabeler.brokerage.service.Finanzen100Service;
+import org.patriques.AlphaVantageConnector;
 import org.patriques.BatchStockQuotes;
-import org.patriques.input.ApiParameter;
-import org.patriques.input.Function;
 import org.patriques.input.Symbol;
-import org.patriques.input.Symbols;
 import org.patriques.output.quote.BatchStockQuotesResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.*;
-import pl.zankowski.iextrading4j.api.marketdata.TOPS;
-import pl.zankowski.iextrading4j.api.refdata.ExchangeSymbol;
-import pl.zankowski.iextrading4j.api.stocks.*;
 import pl.zankowski.iextrading4j.client.IEXTradingClient;
-import pl.zankowski.iextrading4j.client.rest.request.refdata.SymbolsRequestBuilder;
-import pl.zankowski.iextrading4j.client.rest.request.stocks.*;
-import pl.zankowski.iextrading4j.client.socket.manager.SocketRequest;
-import pl.zankowski.iextrading4j.client.socket.request.marketdata.TopsAsyncRequestBuilder;
 
-import org.patriques.AlphaVantageConnector;
-
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
-import java.util.stream.Collectors;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
+import java.util.Queue;
+
+
 
 @RestController
 @RequestMapping("/marketdata")
@@ -47,6 +36,8 @@ public class MarketDataController {
 
     @Autowired
     private BrokerageRepository brokerageRepository;
+
+    private Queue<List<CourseInformation>> lastQuotes = new CircularFifoQueue<>(10);
 
     @GetMapping("/quoteAccurate/{securityNumber}")
     @CrossOrigin(origins = "http://localhost:3000")
@@ -64,12 +55,13 @@ public class MarketDataController {
     @CrossOrigin(origins = "http://localhost:3000")
     public Object collectQuotes() {
         List<SecurityPositions> positions = brokerageRepository.findAll();
-        List<Pair<SecurityPositions, CourseInformation>> quotes = new ArrayList<>(positions.size());
+        List<CourseInformation> courseInformations = new ArrayList<>(positions.size());
         for (SecurityPositions position : positions) {
             CourseInformation courseInformation = finanzen100Service.getQuote(position.getSecurity().getSecurityNumber());
-            quotes.add(Pair.of(position, courseInformation));
+            courseInformations.add(courseInformation);
         }
-        return quotes;
+        this.lastQuotes.add(courseInformations);
+        return new QuotesAndStockInformations(courseInformations, this.lastQuotes);
     }
 
     @GetMapping("/quoteInac/{securityNumber}")

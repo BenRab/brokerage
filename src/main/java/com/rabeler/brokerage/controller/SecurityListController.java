@@ -15,7 +15,7 @@ import java.util.Date;
 import java.util.List;
 
 @RestController
-@RequestMapping("/rest")
+@RequestMapping("/account")
 public class SecurityListController {
     @Autowired
     private BrokerageRepository brokerageRepository;
