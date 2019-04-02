@@ -1,9 +1,6 @@
 package com.rabeler.brokerage.controller;
 
-import com.rabeler.brokerage.domain.AlphaVantageFunction;
-import com.rabeler.brokerage.domain.CourseInformation;
-import com.rabeler.brokerage.domain.QuotesAndStockInformations;
-import com.rabeler.brokerage.domain.SecurityPositions;
+import com.rabeler.brokerage.domain.*;
 import com.rabeler.brokerage.repository.BrokerageRepository;
 import com.rabeler.brokerage.service.AlphaVintageService;
 import com.rabeler.brokerage.service.Finanzen100Service;
@@ -16,11 +13,9 @@ import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.*;
 import pl.zankowski.iextrading4j.client.IEXTradingClient;
 
-import java.util.ArrayList;
-import java.util.List;
-import org.apache.commons.collections4.queue.CircularFifoQueue;
-import java.util.Queue;
+import java.util.*;
 
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 
 
 @RestController
@@ -37,7 +32,7 @@ public class MarketDataController {
     @Autowired
     private BrokerageRepository brokerageRepository;
 
-    private Queue<List<CourseInformation>> lastQuotes = new CircularFifoQueue<>(10);
+    private Map<String, Queue<Quote>> lastQuotes = new HashMap<>();
 
     @GetMapping("/quoteAccurate/{securityNumber}")
     @CrossOrigin(origins = "http://localhost:3000")
@@ -55,13 +50,24 @@ public class MarketDataController {
     @CrossOrigin(origins = "http://localhost:3000")
     public Object collectQuotes() {
         List<SecurityPositions> positions = brokerageRepository.findAll();
+        if (lastQuotes.isEmpty()) {
+            positions.forEach(position -> lastQuotes.put(
+                    position.getSecurity().getSecurityNumber(), new CircularFifoQueue<>(10)));
+
+        }
         List<CourseInformation> courseInformations = new ArrayList<>(positions.size());
         for (SecurityPositions position : positions) {
-            CourseInformation courseInformation = finanzen100Service.getQuote(position.getSecurity().getSecurityNumber());
+            Quote quote = finanzen100Service.getQuote(position.getSecurity().getSecurityNumber());
+            Queue<Quote> lastQuotes = this.lastQuotes.get(position.getSecurity().getSecurityNumber());
+            lastQuotes.add(quote);
+
+            CourseInformation courseInformation = new CourseInformation();
+            courseInformation.setLastQuotes(lastQuotes);
+            courseInformation.setCurrentQuote(quote);
+
             courseInformations.add(courseInformation);
         }
-        this.lastQuotes.add(courseInformations);
-        return new QuotesAndStockInformations(courseInformations, this.lastQuotes);
+        return courseInformations;
     }
 
     @GetMapping("/quoteInac/{securityNumber}")

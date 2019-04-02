@@ -1,7 +1,7 @@
 package com.rabeler.brokerage.service;
 
-import com.rabeler.brokerage.domain.CourseInformation;
+import com.rabeler.brokerage.domain.Quote;
 
 public interface Finanzen100Service {
-    CourseInformation getQuote(String id);
+    Quote getQuote(String id);
 }

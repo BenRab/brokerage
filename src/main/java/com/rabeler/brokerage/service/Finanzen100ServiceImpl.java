@@ -1,6 +1,7 @@
 package com.rabeler.brokerage.service;
 
 import com.rabeler.brokerage.domain.CourseInformation;
+import com.rabeler.brokerage.domain.Quote;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -18,25 +19,25 @@ import java.util.function.Function;
 public class Finanzen100ServiceImpl implements Finanzen100Service {
 
     @Override
-    public CourseInformation getQuote(String id) {
-        CourseInformation courseInformation = new CourseInformation();
+    public Quote getQuote(String id) {
+        Quote quote = new Quote();
         try {
             Document document = Jsoup.connect("https://www.finanzen100.de/aktien/" + id).get();
-            courseInformation.setCurrentValue(getValue(document, ".quote__price__price"));
-            courseInformation.setChangePercent(getValueForType(document, this::parsePositiveNegativeAndPercentToBigDecimal,
+            quote.setCurrentValue(getValue(document, ".quote__price__price"));
+            quote.setChangePercent(getValueForType(document, this::parsePositiveNegativeAndPercentToBigDecimal,
                     ".quote__price__pct"));
-            courseInformation.setChangeTotal(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
+            quote.setChangeTotal(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
                     ".quote__price__abs"));
-            courseInformation.setLow(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
+            quote.setLow(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
                     ".performance-overview__label .performance-overview__label__value"));
-            courseInformation.setHigh(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
+            quote.setHigh(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
                     ".performance-overview__label--right .performance-overview__label__value"));
 
-            System.out.println(courseInformation);
+            System.out.println(quote);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return courseInformation;
+        return quote;
     }
 
     private <K> K getValueForType(Document document, Function<String, K> parsingFunction, String selectorClass) {
