@@ -11,6 +11,11 @@ import org.springframework.util.StringUtils;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.Temporal;
+import java.util.Date;
 import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -32,6 +37,10 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
                     ".performance-overview__label .performance-overview__label__value"));
             quote.setHigh(getValueForType(document, this::parsePositiveNegativeToBigDecimal,
                     ".performance-overview__label--right .performance-overview__label__value"));
+            quote.setDate(getValueForType(document, this::parseQuoteDateField,
+                    ".quote__price__date"));
+            quote.setTime(getValueForType(document, this::parseQuoteTimeField,
+                    ".quote__price__date"));
 
             System.out.println(quote);
         } catch (Exception e) {
@@ -78,6 +87,22 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
         String removedPrice = StringUtils.deleteAny(currentPrice, "+-%");
         BigDecimal number = toNumber(removedPrice);
         return currentPrice.startsWith("-") ? number.negate() : number;
+    }
+
+    private LocalDate parseQuoteDateField(String quoteDate) {
+        String filteredQuoteDate = StringUtils.deleteAny(quoteDate, "| ");
+        if (filteredQuoteDate.contains(".")) {
+            return LocalDate.parse(filteredQuoteDate, DateTimeFormatter.ofPattern("dd.MM.YYYY"));
+        }
+        return LocalDate.now();
+    }
+
+    private LocalTime parseQuoteTimeField(String quoteDate) {
+        String filteredQuoteDate = StringUtils.deleteAny(quoteDate, "| ");
+        if (filteredQuoteDate.contains(":")) {
+            return LocalTime.parse(filteredQuoteDate, DateTimeFormatter.ofPattern("HH:mm:ss"));
+        }
+        return LocalTime.MIDNIGHT;
     }
 
     private String getElements(Document document, String selectorClass) {

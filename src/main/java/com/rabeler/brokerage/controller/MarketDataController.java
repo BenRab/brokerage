@@ -9,7 +9,6 @@ import org.patriques.BatchStockQuotes;
 import org.patriques.input.Symbol;
 import org.patriques.output.quote.BatchStockQuotesResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.*;
 import pl.zankowski.iextrading4j.client.IEXTradingClient;
 
@@ -32,7 +31,7 @@ public class MarketDataController {
     @Autowired
     private BrokerageRepository brokerageRepository;
 
-    private Map<String, Queue<Quote>> lastQuotes = new HashMap<>();
+    private Map<String, CircularFifoQueue<Quote>> lastQuotes = new HashMap<>();
 
     @GetMapping("/quoteAccurate/{securityNumber}")
     @CrossOrigin(origins = "http://localhost:3000")
@@ -53,13 +52,15 @@ public class MarketDataController {
         if (lastQuotes.isEmpty()) {
             positions.forEach(position -> lastQuotes.put(
                     position.getSecurity().getSecurityNumber(), new CircularFifoQueue<>(10)));
-
         }
         List<CourseInformation> courseInformations = new ArrayList<>(positions.size());
         for (SecurityPositions position : positions) {
             Quote quote = finanzen100Service.getQuote(position.getSecurity().getSecurityNumber());
-            Queue<Quote> lastQuotes = this.lastQuotes.get(position.getSecurity().getSecurityNumber());
-            lastQuotes.add(quote);
+            CircularFifoQueue<Quote> lastQuotes = this.lastQuotes.get(position.getSecurity().getSecurityNumber());
+            if (lastQuotes.peek() == null ||
+                    quote.getCurrentValue() != null && !quote.getCurrentValue().equals(
+                            lastQuotes.get(lastQuotes.size() - 1).getCurrentValue()))
+                lastQuotes.add(quote);
 
             CourseInformation courseInformation = new CourseInformation();
             courseInformation.setLastQuotes(lastQuotes);
