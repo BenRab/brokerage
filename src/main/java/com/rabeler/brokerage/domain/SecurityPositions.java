@@ -17,8 +17,6 @@ public class SecurityPositions {
 
     PositionSummary positionSummary;
 
-    Date lastUpdated;
-
     public SecurityPositions() {};
 
     public SecurityPositions(ObjectId id, Security security) {
@@ -26,12 +24,11 @@ public class SecurityPositions {
         this.positionList = new ArrayList<>();
     }
 
-    public SecurityPositions(ObjectId id, Security security, List<Position> positionList, PositionSummary positionSummary, Date lastUpdated) {
+    public SecurityPositions(ObjectId id, Security security, List<Position> positionList, PositionSummary positionSummary) {
         this.id = id;
         this.security = security;
         this.positionList = positionList;
         this.positionSummary = positionSummary;
-        this.lastUpdated = lastUpdated;
     }
 
     public Security getSecurity() {
@@ -52,13 +49,5 @@ public class SecurityPositions {
 
     public void setPositionSummary(PositionSummary positionSummary) {
         this.positionSummary = positionSummary;
-    }
-
-    public Date getLastUpdated() {
-        return lastUpdated;
-    }
-
-    public void setLastUpdated(Date lastUpdated) {
-        this.lastUpdated = lastUpdated;
     }
 }

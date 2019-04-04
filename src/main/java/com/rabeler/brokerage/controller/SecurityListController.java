@@ -30,14 +30,13 @@ public class SecurityListController {
     @GetMapping("/add")
     @CrossOrigin(origins = "http://localhost:3000")
     public Object add() {
-        Security security = new Security("ACN", "Accenture plc");
+        Security security = new Security("ibm-wkn-851399_H1798111680_85502/?CODE_MARKET=_GAT", "IBM");
         Position position = new Position(Date.from(Instant.now()), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
         SecurityPositions securityPositions = new SecurityPositions(new ObjectId(), security);
-        PositionSummary positionSummary = new PositionSummary(BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
+        PositionSummary positionSummary = new PositionSummary(new BigDecimal("124.69"), new BigDecimal("15"), BigDecimal.ONE, BigDecimal.ONE);
 
         securityPositions.addPosition(position);
         securityPositions.setPositionSummary(positionSummary);
-        securityPositions.setLastUpdated(Date.from(Instant.now()));
         brokerageRepository.insert(securityPositions);
 
         return securityPositions;

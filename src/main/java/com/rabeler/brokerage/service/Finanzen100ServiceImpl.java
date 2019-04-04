@@ -3,12 +3,16 @@ package com.rabeler.brokerage.service;
 import com.rabeler.brokerage.domain.CourseInformation;
 import com.rabeler.brokerage.domain.Quote;
 import org.jsoup.Jsoup;
+import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -27,7 +31,7 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
     public Quote getQuote(String id) {
         Quote quote = new Quote();
         try {
-            Document document = Jsoup.connect("https://www.finanzen100.de/aktien/" + id).get();
+            Document document = Jsoup.connect("https://www.finanzen100.de/aktien/" + id).ignoreContentType(true).get();
             quote.setCurrentValue(getValue(document, ".quote__price__price"));
             quote.setChangePercent(getValueForType(document, this::parsePositiveNegativeAndPercentToBigDecimal,
                     ".quote__price__pct"));
@@ -107,6 +111,10 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
 
     private String getElements(Document document, String selectorClass) {
         Elements linksOnPage = getSelectedElements(document, selectorClass);
+        if (linksOnPage.get(0).getAllElements().isEmpty()) {
+            System.out.println(document);
+            return "";
+        }
         return linksOnPage.get(0).getAllElements().get(0).html();
     }
 

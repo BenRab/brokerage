@@ -3,6 +3,7 @@ package com.rabeler.brokerage.controller;
 import com.rabeler.brokerage.domain.*;
 import com.rabeler.brokerage.repository.BrokerageRepository;
 import com.rabeler.brokerage.service.AlphaVintageService;
+import com.rabeler.brokerage.service.CoBaService;
 import com.rabeler.brokerage.service.Finanzen100Service;
 import org.patriques.AlphaVantageConnector;
 import org.patriques.BatchStockQuotes;
@@ -31,6 +32,9 @@ public class MarketDataController {
     @Autowired
     private BrokerageRepository brokerageRepository;
 
+    @Autowired
+    private CoBaService coBaService;
+
     private Map<String, CircularFifoQueue<Quote>> lastQuotes = new HashMap<>();
 
     @GetMapping("/quoteAccurate/{securityNumber}")
@@ -43,6 +47,12 @@ public class MarketDataController {
     @CrossOrigin(origins = "http://localhost:3000")
     public Object collectMarketDataFinanzen100(@PathVariable String securityNumber) {
         return finanzen100Service.getQuote(securityNumber);
+    }
+
+    @GetMapping("/chart/{securityNumber}/{market}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public Object collectChartData(@PathVariable String securityNumber, @PathVariable String market) {
+        return coBaService.requestChart(securityNumber, market);
     }
 
     @GetMapping("/quotes")
