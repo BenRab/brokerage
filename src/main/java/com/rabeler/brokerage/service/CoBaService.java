@@ -12,7 +12,7 @@ public class CoBaService {
     public String requestChart(String wkn, String market) {
         URL url = null;
         try {
-            url = new URL("https://www.commerzbank.de/marktdaten/wp-services/advancedchart.php?TIMESPAN=1D&EXCHANGE=" + market +"&JSON=1&WKN= "+ wkn +"&CURRENCY=EUR");
+            url = new URL("https://www.commerzbank.de/marktdaten/wp-services/advancedchart.php?TIMESPAN=1D&EXCHANGE=" + market +"&JSON=1&WKN=" + wkn +"&CURRENCY=EUR");
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), "UTF-8"))) {
                 for (String line; (line = reader.readLine()) != null; ) {
                     return line;

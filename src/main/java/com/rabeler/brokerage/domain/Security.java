@@ -7,6 +7,7 @@ public class Security {
     private String fullQualifiedName;
     private String isin;
     private String wkn;
+    private String market;
     private ObjectId id;
 
     public Security(String securityNumber, String fullQualifiedName) {
@@ -45,5 +46,13 @@ public class Security {
 
     public void setWkn(String wkn) {
         this.wkn = wkn;
+    }
+
+    public String getMarket() {
+        return market;
+    }
+
+    public void setMarket(String market) {
+        this.market = market;
     }
 }
