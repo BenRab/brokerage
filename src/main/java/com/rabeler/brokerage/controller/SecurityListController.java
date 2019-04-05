@@ -30,10 +30,12 @@ public class SecurityListController {
     @GetMapping("/add")
     @CrossOrigin(origins = "http://localhost:3000")
     public Object add() {
-        Security security = new Security("ibm-wkn-851399_H1798111680_85502/?CODE_MARKET=_GAT", "IBM");
+        Security security = new Security("daimler-wkn-710000_H208355456_82840/?CODE_MARKET=_GAT", "Daimler");
+        security.setWkn("710000");
+        security.setMarket("GAT");
         Position position = new Position(Date.from(Instant.now()), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
         SecurityPositions securityPositions = new SecurityPositions(new ObjectId(), security);
-        PositionSummary positionSummary = new PositionSummary(new BigDecimal("124.69"), new BigDecimal("15"), BigDecimal.ONE, BigDecimal.ONE);
+        PositionSummary positionSummary = new PositionSummary(new BigDecimal("61.22"), new BigDecimal("15"), new BigDecimal("4.5"), BigDecimal.ONE);
 
         securityPositions.addPosition(position);
         securityPositions.setPositionSummary(positionSummary);

@@ -18,6 +18,7 @@ import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoField;
 import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.Locale;
@@ -96,7 +97,7 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
     private LocalDate parseQuoteDateField(String quoteDate) {
         String filteredQuoteDate = StringUtils.deleteAny(quoteDate, "| ");
         if (filteredQuoteDate.contains(".")) {
-            return LocalDate.parse(filteredQuoteDate, DateTimeFormatter.ofPattern("dd.MM.YYYY"));
+            //return LocalDate.parse(filteredQuoteDate, new DateTimeFormatter.("dd.MM.YYYY").parseDefaulting(ChronoField.YEAR, 2017));
         }
         return LocalDate.now();
     }

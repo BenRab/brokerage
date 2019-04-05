@@ -55,6 +55,12 @@ public class MarketDataController {
         return coBaService.requestChart(securityNumber, market);
     }
 
+    @GetMapping("/quotesC/{securityNumber}/{market}")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public Object collectCobaQuotes(@PathVariable String securityNumber, @PathVariable String market) {
+        return coBaService.getQuotes(Arrays.asList(securityNumber), Arrays.asList(market));
+    }
+
     @GetMapping("/quotes")
     @CrossOrigin(origins = "http://localhost:3000")
     public Object collectQuotes() {
