@@ -64,15 +64,15 @@ public class MarketDataController {
     @GetMapping("/quotes")
     @CrossOrigin(origins = "http://localhost:3000")
     public Object collectQuotes() {
-        List<SecurityPositions> positions = brokerageRepository.findAll();
+        var positions = brokerageRepository.findAll();
         if (lastQuotes.isEmpty()) {
             positions.forEach(position -> lastQuotes.put(
                     position.getSecurity().getSecurityNumber(), new CircularFifoQueue<>(10)));
         }
-        List<CourseInformation> courseInformations = new ArrayList<>(positions.size());
+        var courseInformations = new ArrayList<>(positions.size());
         for (SecurityPositions position : positions) {
             Quote quote = finanzen100Service.getQuote(position.getSecurity().getSecurityNumber());
-            CircularFifoQueue<Quote> lastQuotes = this.lastQuotes.get(position.getSecurity().getSecurityNumber());
+            var lastQuotes = this.lastQuotes.get(position.getSecurity().getSecurityNumber());
             if (lastQuotes.peek() == null ||
                     quote.getCurrentValue() != null && !quote.getCurrentValue().equals(
                             lastQuotes.get(lastQuotes.size() - 1).getCurrentValue()))
@@ -92,9 +92,9 @@ public class MarketDataController {
     public Object collectMarketInformationFinanzen100(@PathVariable String securityNumber) {
         String apiKey = "GR4ATDG8BD62EV52";
         int timeout = 3000;
-        AlphaVantageConnector apiConnector = new AlphaVantageConnector(apiKey, timeout);
-        BatchStockQuotes batchStockQuotes = new BatchStockQuotes(apiConnector);
-        BatchStockQuotesResponse batchStockQuotesResponse = batchStockQuotes.quote(securityNumber);
+        var apiConnector = new AlphaVantageConnector(apiKey, timeout);
+        var batchStockQuotes = new BatchStockQuotes(apiConnector);
+        var batchStockQuotesResponse = batchStockQuotes.quote(securityNumber);
         return apiConnector.getRequest(new Symbol(securityNumber), AlphaVantageFunction.GLOBAL_QUOTE);
     }
 }

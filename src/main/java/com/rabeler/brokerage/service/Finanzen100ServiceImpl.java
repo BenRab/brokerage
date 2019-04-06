@@ -1,26 +1,18 @@
 package com.rabeler.brokerage.service;
 
-import com.rabeler.brokerage.domain.CourseInformation;
 import com.rabeler.brokerage.domain.Quote;
 import org.jsoup.Jsoup;
-import org.jsoup.UnsupportedMimeTypeException;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.math.BigDecimal;
-import java.net.URL;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoField;
-import java.time.temporal.Temporal;
-import java.util.Date;
 import java.util.Locale;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -30,9 +22,9 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
 
     @Override
     public Quote getQuote(String id) {
-        Quote quote = new Quote();
+        var quote = new Quote();
         try {
-            Document document = Jsoup.connect("https://www.finanzen100.de/aktien/" + id).ignoreContentType(true).get();
+            var document = Jsoup.connect("https://www.finanzen100.de/aktien/" + id).ignoreContentType(true).get();
             quote.setCurrentValue(getValue(document, ".quote__price__price"));
             quote.setChangePercent(getValueForType(document, this::parsePositiveNegativeAndPercentToBigDecimal,
                     ".quote__price__pct"));
@@ -55,7 +47,7 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
     }
 
     private <K> K getValueForType(Document document, Function<String, K> parsingFunction, String selectorClass) {
-        String linksOnPage = getElements(document, selectorClass);
+        var linksOnPage = getElements(document, selectorClass);
         return parsingFunction.apply(linksOnPage);
     }
 
@@ -64,12 +56,12 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
     }
 
     private BigDecimal getValue(Document document, String selectorClass, BiFunction<Document, String, String> selectorFunction) {
-        String selectedElement = selectorFunction.apply(document, selectorClass);
+        var selectedElement = selectorFunction.apply(document, selectorClass);
         return parseToBigDecimal(selectedElement);
     }
 
     private BigDecimal toNumber(String currentPrice) {
-        NumberFormat nf = NumberFormat.getInstance(Locale.GERMAN);
+        var nf = NumberFormat.getInstance(Locale.GERMAN);
         try {
             return new BigDecimal(nf.parse(currentPrice).toString());
         } catch (ParseException e) {
@@ -83,8 +75,8 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
     }
 
     private BigDecimal parsePositiveNegativeToBigDecimal(String currentPrice) {
-        String removedPrice = StringUtils.deleteAny(currentPrice, "+-");
-        BigDecimal number = toNumber(removedPrice);
+        var removedPrice = StringUtils.deleteAny(currentPrice, "+-");
+        var number = toNumber(removedPrice);
         return currentPrice.startsWith("-") ? number.negate() : number;
     }
 
@@ -103,7 +95,7 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
     }
 
     private LocalTime parseQuoteTimeField(String quoteDate) {
-        String filteredQuoteDate = StringUtils.deleteAny(quoteDate, "| ");
+        var filteredQuoteDate = StringUtils.deleteAny(quoteDate, "| ");
         if (filteredQuoteDate.contains(":")) {
             return LocalTime.parse(filteredQuoteDate, DateTimeFormatter.ofPattern("HH:mm:ss"));
         }
@@ -111,7 +103,7 @@ public class Finanzen100ServiceImpl implements Finanzen100Service {
     }
 
     private String getElements(Document document, String selectorClass) {
-        Elements linksOnPage = getSelectedElements(document, selectorClass);
+        var linksOnPage = getSelectedElements(document, selectorClass);
         if (linksOnPage.get(0).getAllElements().isEmpty()) {
             System.out.println(document);
             return "";

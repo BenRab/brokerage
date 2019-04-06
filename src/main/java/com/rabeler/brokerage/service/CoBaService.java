@@ -22,8 +22,7 @@ public class CoBaService {
         StringBuilder marketBuilder = new StringBuilder();
         markets.forEach(market -> {marketBuilder.append(market); marketBuilder.append(",");});
         StringBuilder wknBuilder = new StringBuilder();
-        markets.forEach(market -> {wknBuilder.append(market); wknBuilder.append(",");});
-
+        wkns.forEach(wkn -> {wknBuilder.append(wkn); wknBuilder.append(",");});
         StringBuilder result = new StringBuilder();
         try {
             URL url = new URL("https://www.commerzbank.de/marktdaten/wp-services/pricedata.php?PROFIL=100&EXCHANGE=" +
@@ -35,8 +34,8 @@ public class CoBaService {
             }
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(result.toString())));
-            System.out.println(document.toString());
+            Document document = builder.parse(url.openStream());
+            System.out.println("Root element: " + document.getDocumentElement().getNodeName());
         } catch (Exception e) {
             e.printStackTrace();
         }

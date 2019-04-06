@@ -23,19 +23,19 @@ public class SecurityListController {
     @GetMapping("/list")
     @CrossOrigin(origins = "http://localhost:3000")
     public List<Object> list() {
-        List<SecurityPositions> securityPositions = brokerageRepository.findAll();
+        var securityPositions = brokerageRepository.findAll();
         return List.of(securityPositions);
     }
 
     @GetMapping("/add")
     @CrossOrigin(origins = "http://localhost:3000")
     public Object add() {
-        Security security = new Security("daimler-wkn-710000_H208355456_82840/?CODE_MARKET=_GAT", "Daimler");
+        var security = new Security("daimler-wkn-710000_H208355456_82840/?CODE_MARKET=_GAT", "Daimler");
         security.setWkn("710000");
         security.setMarket("GAT");
-        Position position = new Position(Date.from(Instant.now()), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
-        SecurityPositions securityPositions = new SecurityPositions(new ObjectId(), security);
-        PositionSummary positionSummary = new PositionSummary(new BigDecimal("61.22"), new BigDecimal("15"), new BigDecimal("4.5"), BigDecimal.ONE);
+        var position = new Position(Date.from(Instant.now()), BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
+        var securityPositions = new SecurityPositions(new ObjectId(), security);
+        var positionSummary = new PositionSummary(new BigDecimal("61.22"), new BigDecimal("15"), new BigDecimal("4.5"), BigDecimal.ONE);
 
         securityPositions.addPosition(position);
         securityPositions.setPositionSummary(positionSummary);
