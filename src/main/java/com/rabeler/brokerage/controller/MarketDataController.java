@@ -49,10 +49,10 @@ public class MarketDataController {
         return finanzen100Service.getQuote(securityNumber);
     }
 
-    @GetMapping("/chart/{securityNumber}/{market}")
+    @GetMapping("/chart/{securityNumber}/{market}/{date}")
     @CrossOrigin(origins = "http://localhost:3000")
-    public Object collectChartData(@PathVariable String securityNumber, @PathVariable String market) {
-        return coBaService.requestChart(securityNumber, market);
+    public Object collectChartData(@PathVariable String securityNumber, @PathVariable String market, @PathVariable String date) {
+        return coBaService.requestChart(securityNumber, market, date);
     }
 
     @GetMapping("/quotesC/{securityNumber}/{market}")

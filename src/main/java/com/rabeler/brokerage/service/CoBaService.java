@@ -35,6 +35,7 @@ public class CoBaService {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(url.openStream());
+            document.getFirstChild().getNodeName();
             System.out.println("Root element: " + document.getDocumentElement().getNodeName());
         } catch (Exception e) {
             e.printStackTrace();
@@ -43,9 +44,10 @@ public class CoBaService {
         return quoteResults;
     }
 
-    public String requestChart(String wkn, String market) {
+    public String requestChart(String wkn, String market, String date) {
         try {
-            URL url = new URL("https://www.commerzbank.de/marktdaten/wp-services/advancedchart.php?TIMESPAN=1D&EXCHANGE=" + market +"&JSON=1&WKN=" + wkn +"&CURRENCY=EUR");
+            URL url = new URL("https://www.commerzbank.de/marktdaten/wp-services/advancedchart.php?TIMESPAN=" + date
+                    + "&EXCHANGE=" + market +"&JSON=1&WKN=" + wkn +"&CURRENCY=EUR");
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8))) {
                 for (String line; (line = reader.readLine()) != null; ) {
                     return line;
