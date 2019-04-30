@@ -1,9 +1,6 @@
 package com.rabeler.brokerage.controller;
 
-import com.rabeler.brokerage.domain.Position;
-import com.rabeler.brokerage.domain.PositionSummary;
-import com.rabeler.brokerage.domain.Security;
-import com.rabeler.brokerage.domain.SecurityPositions;
+import com.rabeler.brokerage.domain.*;
 import com.rabeler.brokerage.repository.BrokerageRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +37,30 @@ public class SecurityListController {
         securityPositions.addPosition(position);
         securityPositions.setPositionSummary(positionSummary);
         brokerageRepository.insert(securityPositions);
+
+        return securityPositions;
+    }
+
+    @PostMapping("/addPosition")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public Object addPosition(@RequestBody PositionRequest request) {
+        var security = request.getSecurity();
+        var securityPositions = new SecurityPositions(new ObjectId(), security);
+
+        securityPositions.addPosition(request.getPosition());
+        // brokerageRepository.insert(securityPositions);
+
+        return securityPositions;
+    }
+
+    @PostMapping("/addNewPosition")
+    @CrossOrigin(origins = "http://localhost:3000")
+    public Object addNewPosition(@RequestBody PositionRequest request) {
+        var security = request.getSecurity();
+        var securityPositions = new SecurityPositions(new ObjectId(), security);
+
+        securityPositions.addPosition(request.getPosition());
+        // brokerageRepository.insert(securityPositions);
 
         return securityPositions;
     }
